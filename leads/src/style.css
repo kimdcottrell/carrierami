@@ -1,0 +1,44 @@
+@import "animated-button.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-bold;
+    }
+    h1 {
+        @apply text-6xl;
+        font-family: 'Pacifico', sans-serif;
+        font-weight: 400;
+        background: -webkit-linear-gradient(theme(colors.cher.500), theme(colors.cher.700));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    h3 {
+        @apply text-2xl;
+    }
+    p {
+        @apply my-6;
+    }
+}
+
+@layer utilities {
+    .alert{
+        @apply flex;
+        @apply items-center;
+        @apply text-white; 
+        @apply text-sm; 
+        @apply font-bold; 
+        @apply px-4; 
+        @apply py-3; 
+        @apply mx-10; 
+        @apply mt-10;
+        @apply rounded-sm;
+        display: none;
+    }
+    .alert svg{
+        display: inline-block;
+    }
+}

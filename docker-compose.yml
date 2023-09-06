@@ -1,0 +1,110 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: images/api.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./api:/api
+    working_dir: /api
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.api-carrierami-redirect-web-secure.redirectscheme.scheme=https
+      - traefik.http.routers.api-carrierami.middlewares=api-carrierami-redirect-web-secure
+      - traefik.http.routers.api-carrierami-web.rule=Host(`api.carrierami.dev`)
+      - traefik.http.routers.api-carrierami-web.entrypoints=web
+      - traefik.http.routers.api-carrierami-web-secure.rule=Host(`api.carrierami.dev`)
+      - traefik.http.routers.api-carrierami-web-secure.tls=true
+      - traefik.http.routers.api-carrierami-web-secure.entrypoints=web-secure
+      # if you have multiple ports exposed on the service, specify port in the web-secure service
+      - traefik.http.services.api-carrierami-web-secure.loadbalancer.server.port=8000
+    networks:
+      - proxy
+
+  leads:
+    build:
+      context: .
+      dockerfile: images/leads.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./leads:/leads
+    working_dir: /leads
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.leads-carrierami-redirect-web-secure.redirectscheme.scheme=https
+      - traefik.http.routers.leads-carrierami.middlewares=leads-carrierami-redirect-web-secure
+      - traefik.http.routers.leads-carrierami-web.rule=Host(`leads.carrierami.dev`)
+      - traefik.http.routers.leads-carrierami-web.entrypoints=web
+      - traefik.http.routers.leads-carrierami-web-secure.rule=Host(`leads.carrierami.dev`)
+      - traefik.http.routers.leads-carrierami-web-secure.tls=true
+      - traefik.http.routers.leads-carrierami-web-secure.entrypoints=web-secure
+      # if you have multiple ports exposed on the service, specify port in the web-secure service
+      - traefik.http.services.leads-carrierami-web-secure.loadbalancer.server.port=5173
+    networks:
+      - proxy
+
+  app:
+    build:
+      context: .
+      dockerfile: images/app.Dockerfile
+      # target: init
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.app-carrierami-redirect-web-secure.redirectscheme.scheme=https
+      - traefik.http.routers.app-carrierami.middlewares=app-carrierami-redirect-web-secure
+      - traefik.http.routers.app-carrierami-web.rule=Host(`carrierami.dev`)
+      - traefik.http.routers.app-carrierami-web.entrypoints=web
+      - traefik.http.routers.app-carrierami-web-secure.rule=Host(`carrierami.dev`)
+      - traefik.http.routers.app-carrierami-web-secure.tls=true
+      - traefik.http.routers.app-carrierami-web-secure.entrypoints=web-secure
+      # if you have multiple ports exposed on the service, specify port in the web-secure service
+      - traefik.http.services.app-carrierami-web-secure.loadbalancer.server.port=5173
+    networks:
+      - proxy
+
+  persistent_db_data:
+    image: mariadb
+    restart: always
+    volumes:
+      - persistent_db_data:/var/lib/mysql
+      - ./mariadb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: ${MARIADB_ALLOW_EMPTY_ROOT_PASSWORD} # this is set in the .env file
+    labels:
+      - traefik.enable=false
+    
+  persistent_db_adminer:
+    image: adminer
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.adminer.rule=Host(`db.carrierami.dev`)
+      - traefik.http.routers.adminer.entrypoints=web
+      - traefik.http.services.adminer.loadbalancer.server.port=8080
+    networks:
+      - proxy
+
+  in_memory_db:
+    image: redis:7-bookworm
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    volumes:
+      - in_memory_db:/data
+
+volumes:
+  persistent_db_data:
+  in_memory_db:
+
+networks:
+  proxy:
+    external: true
