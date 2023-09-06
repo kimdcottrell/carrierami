@@ -5,6 +5,7 @@ export default {
   data() {
     return {
         email: 'oogabooga',
+        subscribe_request_status: '',
     };
   },
   computed: {
@@ -21,50 +22,42 @@ export default {
       this.email = trim(this.email);
     },    
     submitForm() {
-        const subscribe_request = axios({
-          method: 'post',
-          url: 'mailchimp/lists/b4ba0cab9c/members?skip_merge_validation=true',
-          data: {
-            email_address: this.email,
-            status: 'subscribed'
-          }
-        });
         if (this.checkEmail) {
             window.console.log('email is valid');
-          
-            subscribe_request.then(function (response) {
+
+            // the closures below needs the correct context of `this`
+            var $this = this;
+            axios({
+              method: 'post',
+              url: `mailchimp/lists/${import.meta.env.VITE_MAILCHIMP_GENERAL_LIST}/members?skip_merge_validation=true`,
+              data: {
+                email_address: $this.email,
+                status: 'subscribed'
+              }
+            }).then(function (response) {
+              $this.subscribe_request_status = 'success';
               console.log(response)
-            });
-
-            this.$refs.success_alert.style.display = 'inline-block';
-            this.$refs.error_alert.style.display = 'none';
-            this.$refs.email_form.style.display = 'none';
-            
-            
-             
-        } else {
-            window.console.log('email is invalid');
-            this.$refs.error_alert.style.display = 'inline-block';
-            this.$refs.success_alert.style.display = 'none';  
-
-            subscribe_request.catch(function (error) {
+            }).catch(function (error) {
+              $this.subscribe_request_status = 'error-api-response';
               if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
+                console.log("The request was made and the server responded with a status code that falls out of the range of 2xx")
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
+                $this.subscribe_request_message = `Error ${error.response.status}: ${error.response.data.title}`
               } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                // http.ClientRequest in node.js
-                console.log(error.request);
+                console.log("The request was made but no response was received. error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js")
+                $this.subscribe_request_message = `${error.request}`
               } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log('Error', error.message);
+                console.log("Something happened in setting up the request that triggered an Error")
+                $this.subscribe_request_message = `${error.message}`
               }
               console.log(error.config);
             });
+          
+        } else {
+            this.subscribe_request_status = 'error-invalid-email';
+            window.console.log('email is invalid');
         }
     }
   }
@@ -84,15 +77,19 @@ export default {
       <p>Query for only the topics you care about. <br />
         Get short, grouped summaries on recent events about that topic.</p>
       <h3>Join the waitlist to get early access to the beta!</h3>
-      <div ref="success_alert" class="alert bg-teal-600" role="alert">
-          <svg class="fill-current mr-2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" zoomAndPan="magnify" viewBox="0 0 30 30" height="20" preserveAspectRatio="xMidYMid meet" version="1.0"><defs><clipPath id="id1"><path d="M 2.328125 4.222656 L 27.734375 4.222656 L 27.734375 24.542969 L 2.328125 24.542969 Z M 2.328125 4.222656 " clip-rule="nonzero" fill="white"></path></clipPath></defs><g clip-path="url(#id1)"><path fill="white" d="M 27.5 7.53125 L 24.464844 4.542969 C 24.15625 4.238281 23.65625 4.238281 23.347656 4.542969 L 11.035156 16.667969 L 6.824219 12.523438 C 6.527344 12.230469 6 12.230469 5.703125 12.523438 L 2.640625 15.539062 C 2.332031 15.84375 2.332031 16.335938 2.640625 16.640625 L 10.445312 24.324219 C 10.59375 24.472656 10.796875 24.554688 11.007812 24.554688 C 11.214844 24.554688 11.417969 24.472656 11.566406 24.324219 L 27.5 8.632812 C 27.648438 8.488281 27.734375 8.289062 27.734375 8.082031 C 27.734375 7.875 27.648438 7.679688 27.5 7.53125 Z M 27.5 7.53125 " fill-opacity="1" fill-rule="nonzero"></path></g></svg>
-          <span>Thanks for joining the waitlist for our beta!</span>
-        </div>
-        <div ref="error_alert" class="alert bg-red-700" role="alert">
-          <svg class="fill-current text-white mr-2 pt-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" fill="white"></path> </svg>
-          <span>There was a problem with processing your request.</span>
-        </div>
-      <form ref="email_form" class="mt-10">
+      <div v-if="subscribe_request_status === 'success'" ref="success_alert" class="alert bg-teal-600" role="alert">
+        <svg class="fill-current mr-2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" zoomAndPan="magnify" viewBox="0 0 30 30" height="20" preserveAspectRatio="xMidYMid meet" version="1.0"><defs><clipPath id="id1"><path d="M 2.328125 4.222656 L 27.734375 4.222656 L 27.734375 24.542969 L 2.328125 24.542969 Z M 2.328125 4.222656 " clip-rule="nonzero" fill="white"></path></clipPath></defs><g clip-path="url(#id1)"><path fill="white" d="M 27.5 7.53125 L 24.464844 4.542969 C 24.15625 4.238281 23.65625 4.238281 23.347656 4.542969 L 11.035156 16.667969 L 6.824219 12.523438 C 6.527344 12.230469 6 12.230469 5.703125 12.523438 L 2.640625 15.539062 C 2.332031 15.84375 2.332031 16.335938 2.640625 16.640625 L 10.445312 24.324219 C 10.59375 24.472656 10.796875 24.554688 11.007812 24.554688 C 11.214844 24.554688 11.417969 24.472656 11.566406 24.324219 L 27.5 8.632812 C 27.648438 8.488281 27.734375 8.289062 27.734375 8.082031 C 27.734375 7.875 27.648438 7.679688 27.5 7.53125 Z M 27.5 7.53125 " fill-opacity="1" fill-rule="nonzero"></path></g></svg>
+        <span>Thanks for joining the waitlist for our beta!</span>
+      </div>
+      <div v-else-if="subscribe_request_status === 'error-invalid-email'" ref="error_alert" class="alert bg-red-700" role="alert">
+        <svg class="fill-current text-white mr-2 pt-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" fill="white"></path> </svg>
+        <span>Your email did not pass initial validation. Please double check your entered email for typos.</span>
+      </div>
+      <div v-else ref="error_alert" class="alert bg-red-700" role="alert">
+        <svg class="fill-current text-white mr-2 pt-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" fill="white"></path> </svg>
+        <span>{{ subscribe_request_message }}</span>
+      </div>
+      <form v-if="subscribe_request_status !== 'success'" ref="email_form" class="mt-10">
         <input v-model="email" @keyUp.enter="cleanEmail()" type="email" name="email" required placeholder="email" class="form-input inline-block pb-2 px-4py-3 mb-4 rounded" />
         <br />
         <button id="join-button" type="submit" @click.prevent="submitForm()">

@@ -20,7 +20,7 @@ export default ({ mode }) => {
           rewrite: (path) => path.replace(/^\/mailchimp/, ''),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `api_key ${process.env.VITE_MAILCHIMP_API_KEY}`
+            'Authorization': `api_key ${process.env.MAILCHIMP_API_KEY}`
           },
           configure: (proxy, _options) => {
             proxy.on('error', (err, _req, _res) => {

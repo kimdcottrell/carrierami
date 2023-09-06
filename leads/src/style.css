@@ -36,7 +36,7 @@
         @apply mx-10; 
         @apply mt-10;
         @apply rounded-sm;
-        display: none;
+        @apply inline-block;
     }
     .alert svg{
         display: inline-block;
