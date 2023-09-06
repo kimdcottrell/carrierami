@@ -14,14 +14,10 @@ export default ({ mode }) => {
       origin: 'https://leads.carrierami.dev',
       // mailchimp throws cors errors if you access any of it via a browser, so it must be proxied
       proxy: {
-        '/mailchimp': {
-          target: 'https://us12.api.mailchimp.com/3.0/',
+        '/.netlify/functions': {
+          target: 'http://127.0.0.1:8000/',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/mailchimp/, ''),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `api_key ${process.env.MAILCHIMP_API_KEY}`
-          },
+          rewrite: (path) => path.replace(/^\/\.netlify\/functions/, ''),
           configure: (proxy, _options) => {
             proxy.on('error', (err, _req, _res) => {
               console.log('proxy error', err);
