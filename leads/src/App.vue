@@ -4,7 +4,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-        email: 'oogabooga',
+        email: '',
         subscribe_request_status: '',
     };
   },
@@ -85,12 +85,12 @@ export default {
         <svg class="fill-current text-white mr-2 pt-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" fill="white"></path> </svg>
         <span>Your email did not pass initial validation. Please double check your entered email for typos.</span>
       </div>
-      <div v-else ref="error_alert" class="alert bg-red-700" role="alert">
+      <div v-else-if="subscribe_request_status === 'error-api-response'" ref="error_alert" class="alert bg-red-700" role="alert">
         <svg class="fill-current text-white mr-2 pt-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" fill="white"></path> </svg>
         <span>{{ subscribe_request_message }}</span>
       </div>
       <form v-if="subscribe_request_status !== 'success'" ref="email_form" class="mt-10">
-        <input v-model="email" @keyUp.enter="cleanEmail()" type="email" name="email" required placeholder="email" class="form-input inline-block pb-2 px-4py-3 mb-4 rounded" />
+        <input v-model="email" @keyUp.enter="cleanEmail()" type="email" name="email" required placeholder="email" class="form-input inline-block pb-2 px-4 py-3 mb-4 rounded" />
         <br />
         <button id="join-button" type="submit" @click.prevent="submitForm()">
           <a href="#" class="animated-button">
