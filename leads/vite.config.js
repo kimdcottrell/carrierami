@@ -12,7 +12,7 @@ export default ({ mode }) => {
       strictPort: true,
       port: 5173,
       origin: 'https://leads.carrierami.dev',
-      // mailchimp throws cors errors if you access any of it via a browser, so it mumst be proxied
+      // mailchimp throws cors errors if you access any of it via a browser, so it must be proxied
       proxy: {
         '/mailchimp': {
           target: 'https://us12.api.mailchimp.com/3.0/',

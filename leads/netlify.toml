@@ -1,0 +1,7 @@
+[[redirects]]
+  from = "/mailchimp/*"
+  to = "https://us12.api.mailchimp.com/3.0/:splat"
+  status = 200
+  force = true
+  headers = {Content-Type = 'application/json',},
+  signed = MAILCHIMP_API_KEY
