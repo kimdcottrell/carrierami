@@ -6,8 +6,7 @@
 app/*
 api/*
 
-# some stuff for me
-netlify.toml
+# some stuff for me and my workflow
 test.*
 
 # Logs
