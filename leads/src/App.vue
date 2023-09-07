@@ -29,10 +29,9 @@ export default {
             var $this = this;
             axios({
               method: 'post',
-              url: `mailchimp/lists/${import.meta.env.VITE_MAILCHIMP_GENERAL_LIST}/members?skip_merge_validation=true`,
+              url: `/.netlify/functions/subscription_request`,
               data: {
                 email_address: $this.email,
-                status: 'subscribed'
               }
             }).then(function (response) {
               $this.subscribe_request_status = 'success';
@@ -44,13 +43,11 @@ export default {
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
-                $this.subscribe_request_message = `Error ${error.response.status}: ${error.response.data.title}`
+                $this.subscribe_request_message = error.response.data.message
               } else if (error.request) {
-                console.log("The request was made but no response was received. error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js")
-                $this.subscribe_request_message = `${error.request}`
+                $this.subscribe_request_message = "The request was made but no response was received. error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js"
               } else {
-                console.log("Something happened in setting up the request that triggered an Error")
-                $this.subscribe_request_message = `${error.message}`
+                $this.subscribe_request_message = "Something happened in setting up the request that triggered an Error"
               }
               console.log(error.config);
             });
@@ -67,7 +64,7 @@ export default {
 
 <template>
   <div class="flex place-content-center h-screen">
-    <section class="rounded bg-cher-100 p-10 w-3/5 m-auto text-center">
+    <section class="rounded bg-cher-100 p-10 sm:w-5/5 md:w-4/5 lg:w-3/5 m-auto text-center">
       <h1>
         Carrier Ami
       </h1>

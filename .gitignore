@@ -6,6 +6,10 @@
 app/*
 api/*
 
+# some stuff for me
+netlify.toml
+test.*
+
 # Logs
 logs
 *.log

@@ -7,17 +7,21 @@ export default ({ mode }) => {
 
   return defineConfig({
     plugins: [vue(), postcss()],
+    esbuild: {
+      drop: ['console', 'debugger']
+    },
     server: {
       host: "0.0.0.0",
       strictPort: true,
       port: 5173,
       origin: 'https://leads.carrierami.dev',
-      // mailchimp throws cors errors if you access any of it via a browser, so it must be proxied
+      // TODO: this is not working as there is no node server with an engine running in docker
       proxy: {
         '/.netlify/functions': {
           target: 'http://127.0.0.1:8000/',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/\.netlify\/functions/, ''),
+
           configure: (proxy, _options) => {
             proxy.on('error', (err, _req, _res) => {
               console.log('proxy error', err);
