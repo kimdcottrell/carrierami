@@ -64,7 +64,7 @@ export default {
 
 <template>
   <div class="flex place-content-center h-screen">
-    <section class="rounded bg-cher-100 p-10 sm:w-5/5 md:w-4/5 lg:w-3/5 m-auto text-center">
+    <section class="rounded bg-cher-100 p-10 sm:w-5/5 md:w-4/5 lg:w-3/5 md:m-auto text-center">
       <h1>
         Carrier Ami
       </h1>
@@ -87,7 +87,7 @@ export default {
         <span>{{ subscribe_request_message }}</span>
       </div>
       <form v-if="subscribe_request_status !== 'success'" ref="email_form" class="mt-10">
-        <input v-model="email" @keyUp.enter="cleanEmail()" type="email" name="email" required placeholder="email" class="form-input inline-block pb-2 px-4 py-3 mb-4 rounded" />
+        <input v-model="email" @keyUp.enter="cleanEmail()" type="email" name="email" required placeholder="email" class="form-input inline-block pb-2 px-4 py-3 mb-4 rounded sm:w-4/5 md:w-3/5" />
         <br />
         <button id="join-button" type="submit" @click.prevent="submitForm()">
           <a href="#" class="animated-button">
