@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 export async function handler(event, context) {
   dotenv.config();
-  const event_body = JSON.parse(event.body);
+  
 
   if (event.httpMethod !== 'POST' && !String(event.body).toLowerCase().includes("email_address")) {
     return {
@@ -14,6 +14,8 @@ export async function handler(event, context) {
     };
   } 
 
+  const event_body = JSON.parse(event.body);
+  
   return axios({
     method: 'post',
     url: `https://us12.api.mailchimp.com/3.0/lists/${process.env.VITE_MAILCHIMP_GENERAL_LIST}/members?skip_merge_validation=true`,
@@ -27,7 +29,6 @@ export async function handler(event, context) {
     }
   }).then(function (response) {
       return {
-        header: {"content-type": "application/json"},
         body: JSON.stringify({
           message: 'success',
         }),
@@ -36,7 +37,6 @@ export async function handler(event, context) {
   }).catch(function (error) {
     if (error.response) {
       return {
-        header: {"content-type": "application/json"},
         body: JSON.stringify({
           message: `Error: ${error.response.status}: ${error.response.data.title}`,
         }),
@@ -45,7 +45,6 @@ export async function handler(event, context) {
     } else if (error.request) {
       console.log("The request was made but no response was received. error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js")
       return {
-        header: {"content-type": "application/json"},
         body: JSON.stringify({
           message: error.request,
         }),
@@ -53,7 +52,6 @@ export async function handler(event, context) {
       };
     } else {
       return {
-        header: {"content-type": "application/json"},
         body: JSON.stringify({
           message: error.message,
         }),
